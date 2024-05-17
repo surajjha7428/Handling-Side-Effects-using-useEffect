@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React useEffect Example</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 100px;
+        }
+
+        .column {
+            margin-right: 10px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            background-color: #fff;
+            display: block;
+            margin: 0 auto;
+
+        }
+
+        p {
+            margin: 0;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #6E71CC;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const App = () => {
+            const [data, setData] = React.useState(null);
+            const [inputValue, setInputValue] = React.useState('');
+            const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+
+            React.useEffect(() => {
+                fetch("https://reqres.in/api/users?page=1")
+                    .then(response => response.json())
+                    .then(data => setData(data.data));
+            }, []);
+
+            const handleInputChange = (event) => {
+                setInputValue(event.target.value);
+                document.title = event.target.value || 'React useEffect Example';
+            };
+
+            React.useEffect(() => {
+                const handleMouseMove = (event) => {
+                    setMousePosition({ x: event.clientX, y: event.clientY });
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+
+                return () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                };
+            }, []);
+
+            return (
+                <div className="container">
+                    <h2>Fetched Data:</h2>
+                    <div>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            placeholder="Type here..."
+                        />
+                    </div>
+                    <div>
+                        <p>Mouse Position: X: {mousePosition.x}, Y: {mousePosition.y}</p>
+                    </div>
+                    {data ? (
+                        <div>
+                            <div className="row">
+                                {data.filter((user, index) => index < 3).map(user => (
+                                    <div className="column" key={user.id}>
+                                        <img src={user.avatar} alt="avatar" />
+                                        <p>{user.first_name}</p>
+                                        <p>{user.email}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="row">
+                                {data.filter((user, index) => index >= 3 && index < 6).map(user => (
+                                    <div className="column" key={user.id}>
+                                        <img src={user.avatar} alt="avatar" />
+                                        <p>{user.first_name} {user.last_name}</p>
+                                        <p>{user.email}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <p>Loading...</p>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(
+            <App />,
+            document.getElementById("root")
+        );
+    </script>
+</body>
+
+</html>
